@@ -6,9 +6,13 @@
 
     let shrinkedUrl = $state(""); // to hold the short URL from the backend
 
-    let urlBase = $state("http://localhost:8000");
+    // commented the former url out cause i was running two projects and needed to use port 8001
+    // even in the back cors i had to add both 5173 and 5174 for svelte
+    //let urlBase = $state("http://localhost:8000");
     // for now it'll aways point to localhost, since it's locally scoped
     // so much for shortening ig, but if i do scale, i can then point to an api_url in an env file
+ 
+    const urlBase = import.meta.env.VITE_API_URL || "http://localhost:8001";
 
     async function shrinkUrl() {
         // sending a POST request to FastAPI

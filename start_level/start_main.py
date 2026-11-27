@@ -19,6 +19,7 @@ start_app.add_middleware(
     CORSMiddleware,
     allow_origins = [
         "http://localhost:5173", # svelte url
+        "http://localhost:5174", # i run multiple svelte projects sometimes
     ],
     allow_credentials = True,
     allow_methods = ["*"], # literally allow all
@@ -80,10 +81,10 @@ async def redirect_to_target(url_key: str, database: Session = Depends(get_actua
     # if url_key in database: # if .. in checks if a specific value exists inside a collection
     # something new I used before, no more
 
-    if database_url:
-        return RedirectResponse(url=database_url.target_url)
-    else:
+    if database_url is None or database_url.target_url is None:
         raise HTTPException(status_code=404, detail="We don't have this URL")
+
+    return RedirectResponse(url=database_url.target_url)
 
     
 

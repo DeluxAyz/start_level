@@ -1,0 +1,76 @@
+ <!--the client code for the first exercise-->
+
+ <!--Using simple JS for now-->
+
+ <!doctype html>
+ <html>
+    <head>
+        <title> The Echo Pipe Exercise</title>
+    </head>
+
+
+    <body>
+        <h1>Echo Pipe</h1>
+
+        <div id="status">Your Echoes Search for Beyond...</div>
+        <br/>
+
+        <input type="text" id="echoText" placeholder="Let out your whispers to be echoed on..."
+        size="60"
+        >
+
+        <button id="echoButton">Echo</button>
+
+        <h3>The Echoes From Beyond...</h3>
+        <ul id="echoedMessages"></ul>
+    </body>
+    
+    <script>
+        // the websocket object
+        const echoSocket = new WebSocket("ws://127.0.0.1:8000/echo")
+        //the endpoint in the Fast API code
+
+        // setting up my UI action points
+        const statusDiv = document.getElementById("status")
+        const echoButton = document.querySelector("#echoButton")
+        const echoInput = document.getElementById("echoText")
+        const messages = document.querySelector("#echoedMessages")
+
+       // for when the connection handshake opens
+        echoSocket.onopen = () => {
+            statusDiv.textContent = "Your Echoes Have Now Reached Beyond...";
+            echoButton.disabled = false; // safe to send now
+        }
+
+        //triggered when the server pushes data, a message is received
+        echoSocket.onmessage = function(event) {
+            const li = document.createElement("li");
+            li.textContent = event.data;
+            messages.appendChild(li);
+        }
+
+        // triggers if the connection is severed for one reason or so
+        echoSocket.onclose = () => {
+            statusDiv.textContent = "The Beyond is Beyond your grasp, your echoes cut off...";
+            echoButton.disabled = true; // can't send when connection down
+        }
+
+        // now the function to send data down the socket
+        function echoPipe() {
+            const echo_text = echoInput.value.trim();
+            // like i said in my notes, always check for readyState
+            if (echo_text && echoSocket.readyState === WebSocket.OPEN) {
+                echoSocket.send(echo_text);
+                echoInput.value = "";
+            }
+        }
+
+        // adding the function to the button
+        echoButton.addEventListener("click", echoPipe);
+        echoInput.addEventListener("keydown", (e) =>{
+            if (e.key === "Enter") echoPipe();
+            // in addition to the button, pressing enter also activates the function
+        })
+
+    </script>
+ </html>

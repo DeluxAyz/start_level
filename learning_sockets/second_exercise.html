@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>An In Memory Connection Manager</title>
+    </head>
+
+    <body>
+        <h1> WebSockets Hangout</h1>
+
+        <h2> Client ID - <span id="clientID">...</span></h2>
+
+        <form action="" id="form">
+            <input type="text" size="60" id="messageText"/>
+            <button>Relay Message</button>
+        </form>
+
+        <ul id="messages"></ul>
+
+        <script>
+            let client_id = Date.now() // using the Date object ig
+            document.querySelector("#clientID").textContent = client_id;
+            // note to self, see void extended v2 for innerText vs textContent
+
+            // like before making the websocket object
+            let websocket_object = new WebSocket(`ws://127.0.0.1:8000/chat/${client_id}`)
+
+            // then retrieving data from the server
+            websocket_object.onmessage = (event) => {
+                let messages = document.getElementById('messages')
+                let message = document.createElement('li')
+                let content = document.createTextNode(event.data)
+                // note to self, could have just used textContent too
+
+                message.appendChild(content)
+                messages.appendChild(message)
+            };
+
+            function sendMessage(event) {
+                const input = document.querySelector("#messageText")
+                websocket_object.send(input.value)
+                input.value= ''
+                event.preventDefault() // saw this line in the docs but don't grab
+                // Gemini explained it's to prevent the default behaviour of 
+                // making an HTTP request and reloading the entire page when a form submits
+                // this destroys the current JavaScript state and kills the WebSocket connection
+            }
+
+            let form = document.querySelector("#form");
+            form.addEventListener("submit", sendMessage)
+
+
+        </script>
+    </body>
+
+</html>
